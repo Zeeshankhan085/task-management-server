@@ -6,7 +6,7 @@ import Task from '../models/task';
 import Board from '../models/board';
 import Column from '../models/column';
 import { tasks, columns, subTasks as subTasksTable } from '../db/schema';
-import db from '../db/database';
+import db from '../db';
 import { eq, and, inArray } from 'drizzle-orm';
 
 

@@ -1,20 +1,5 @@
-// {
-//   "compilerOptions": {
-//     "outDir": "./dist",
-//     // remove rootDir completely
-//     "module": "commonjs",
-//     "target": "es2020",
-//     "esModuleInterop": true,
-//     "moduleResolution": "node",
-//     "strict": true,
-//     "skipLibCheck": true
-//   },
-//   "include": ["src/**/*", "drizzle.config.ts"]
-// }
-
 {
   "compilerOptions": {
-    "rootDir": "src",
     "outDir": "dist",
     "module": "commonjs",
     "target": "es2020",
@@ -23,5 +8,5 @@
     "strict": true,
     "skipLibCheck": true
   },
-  "include": ["src", "src/drizzle.config.ts"]
+  "include": ["src", "drizzle.config.ts"]
 }

@@ -1,6 +1,6 @@
 import {  Response, Request } from 'express';
 import { boards, columns as ColumnsTable, } from '../db/schema';
-import db from '../db/database'
+import db from '../db'
 import { eq, inArray } from 'drizzle-orm';
 import { FlatRow, nestBoards } from '../utils/board';
 

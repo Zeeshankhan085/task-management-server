@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import db from '../db/database';
+import db from '../db';
 import { subTasks, tasks } from '../db/schema';
 import { eq } from 'drizzle-orm';
 

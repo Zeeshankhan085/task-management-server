@@ -1,17 +1,19 @@
 CREATE TABLE "boards" (
 	"id" integer PRIMARY KEY GENERATED ALWAYS AS IDENTITY (sequence name "boards_id_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 2147483647 START WITH 1 CACHE 1),
-	"name" varchar(200) NOT NULL
+	"name" varchar(200) NOT NULL,
+	CONSTRAINT "boards_name_unique" UNIQUE("name")
 );
 --> statement-breakpoint
 CREATE TABLE "columns" (
 	"id" integer PRIMARY KEY GENERATED ALWAYS AS IDENTITY (sequence name "columns_id_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 2147483647 START WITH 1 CACHE 1),
 	"name" varchar(120) NOT NULL,
-	"board_id" integer NOT NULL
+	"board_id" integer NOT NULL,
+	CONSTRAINT "columns_name_unique" UNIQUE("name")
 );
 --> statement-breakpoint
 CREATE TABLE "subtasks" (
 	"id" integer PRIMARY KEY GENERATED ALWAYS AS IDENTITY (sequence name "subtasks_id_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 2147483647 START WITH 1 CACHE 1),
-	"name" varchar(200) NOT NULL,
+	"title" varchar(200) NOT NULL,
 	"completed" boolean DEFAULT false NOT NULL,
 	"task_id" integer NOT NULL
 );

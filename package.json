@@ -6,9 +6,9 @@
   "scripts": {
     "start": "nodemon",
     "build": "tsc",
-    "migrate": "tsx node-pg-migrate -c ./migrations/migrate.config.ts up",
-    "migrate:down": "tsx node-pg-migrate -c ./migrations/migrate.config.ts down",
-    "serve": "node dist/index.js"
+    "generate:migrations": "npx drizzle-kit generate",
+    "migrate": "npx drizzle-kit migrate",
+    "serve": "node dist/src/index.js"
   },
   "keywords": [],
   "author": "",
