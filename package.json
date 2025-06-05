@@ -6,6 +6,8 @@
   "scripts": {
     "start": "nodemon",
     "build": "tsc",
+    "migrate": "tsx node-pg-migrate -c ./migrations/migrate.config.ts up",
+    "migrate:down": "tsx node-pg-migrate -c ./migrations/migrate.config.ts down",
     "serve": "node dist/index.js"
   },
   "keywords": [],
@@ -13,18 +15,25 @@
   "license": "ISC",
   "dependencies": {
     "cors": "^2.8.5",
-    "dotenv": "^16.4.5",
+    "dotenv": "^16.5.0",
+    "drizzle-orm": "^0.44.1",
+    "drizzle-typebox": "^0.3.3",
+    "drizzle-zod": "^0.8.2",
     "express": "^4.19.2",
-    "mongodb": "^6.8.0",
     "mongoose": "^8.5.1",
+    "node-pg-migrate": "^8.0.1",
+    "pg": "^8.16.0",
     "zustymiddleware": "^1.2.0",
     "zustymiddlewarets": "^1.4.2"
   },
   "devDependencies": {
     "@types/express": "^4.17.21",
-    "@types/node": "^22.0.0",
+    "@types/node": "^22.15.29",
+    "@types/pg": "^8.15.4",
+    "drizzle-kit": "^0.31.1",
     "nodemon": "^3.1.4",
     "ts-node": "^10.9.2",
-    "typescript": "^5.5.4"
+    "tsx": "^4.19.4",
+    "typescript": "^5.8.3"
   }
 }

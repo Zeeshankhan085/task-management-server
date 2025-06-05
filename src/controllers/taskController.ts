@@ -4,30 +4,27 @@
 import { Request, Response } from 'express';
 import Task from '../models/task';
 import Board from '../models/board';
-import mongoose from 'mongoose';
 import Column from '../models/column';
+import { tasks, columns, subTasks as subTasksTable } from '../db/schema';
+import db from '../db/database';
+import { eq, and, inArray } from 'drizzle-orm';
 
-const { ObjectId } = mongoose.Types;
 
 export const createTask = async (req: Request, res: Response) => {
-  const { task, columnId } = req.body;
+  console.log('hellllllllllll-------------------');
+  
+  const {boardId, columnId} = req.params;
+  const { task } = req.body;
   console.log("task", task);
+  console.log({boardId}, {columnId});
+  
   
 
   try {
-    const newTask = new Task(task);
-    await newTask.save();
-    console.log("new task", newTask);
+    const createdTask = await db.insert(tasks).values({...task, column_id: columnId}).returning();
+    console.log(createdTask);
     
-    
-    const column = await Column.findById(columnId);
-    if (!column) {
-      return res.status(404).send('Column not found');
-    }
-    column.tasks.push(newTask._id);
-    await column.save();
-
-    res.status(201).json(newTask);
+    res.status(201).json(createTask);
   } catch (error: any) {
     res.status(500).json({ message: error.message });
   }
@@ -35,96 +32,90 @@ export const createTask = async (req: Request, res: Response) => {
 
 export const moveTask = async (req: Request, res: Response) => {
   try {
-    const {  taskId,  } = req.params;
-    const { targetColumnId, boardId,sourceColumnId } = req.body;
+    const { columnId, taskId } = req.params;
+    const { targetColumnId } = req.body;
 
-    if (!ObjectId.isValid(boardId) || !ObjectId.isValid(taskId) ||
-        !ObjectId.isValid(sourceColumnId) || !ObjectId.isValid(targetColumnId)) {
-      return res.status(400).send('Invalid ID format');
+    const updatedTask = await db
+      .update(tasks)
+      .set({ column_id: targetColumnId })
+      .where(
+        and(
+          eq(tasks.id, taskId),
+          eq(tasks.column_id, columnId)
+        )
+      )
+      .returning();
+
+    if (!updatedTask.length) {
+      return res.status(404).send('Task not found or already moved.');
     }
 
-    const board = await Board.findById(boardId);
-    if (!board) {
-      return res.status(404).send('Board not found');
-    }
-
-    const sourceColumn = await Column.findById(sourceColumnId);
-const targetColumn =await  Column.findById(targetColumnId)
-    console.log({sourceColumn});
-    
-    if (!sourceColumn || !targetColumn) {
-      return res.status(404).send('Column not found');
-    }
-
-    const taskIndex = sourceColumn.tasks.findIndex(task => task._id.equals(new ObjectId(taskId)));
-    if (taskIndex === -1) {
-      return res.status(404).send('Task not found in the source column');
-    }
-
-    const [task] = sourceColumn.tasks.splice(taskIndex, 1);
-    targetColumn.tasks.push(task);
-
-    await sourceColumn.save();
-    await targetColumn.save()
-
-    res.status(200).send(board);
+    res.status(200).send(updatedTask[0]);
   } catch (error) {
-    console.error(error);
+    console.error("Move Task Error:", error);
     res.status(500).send('Internal Server Error');
   }
 };
 
 
 export const deleteTask = async (req, res) => {
-  try {
     const { taskId } = req.params;
-
-    // Find the column that contains the task ID
-    const column = await Column.findOne({ tasks: taskId });
-
-    if (!column) {
-      return res.status(404).json({ message: 'Column containing the task not found' });
-    }
-
-    // Remove the task ID from the tasks array
-    column.tasks.pull(taskId);
-    await column.save();
-
-    // Delete the task
-    await Task.findByIdAndDelete(taskId);
-
-    return res.status(200).json({ message: 'Task deleted and removed from column successfully' });
+    const id = Number(taskId);
+    if (isNaN(id)) {
+  return res.status(400).json({ error: "Invalid ID" });
+} 
+try{
+    await db.delete(tasks).where(eq(tasks.id, id))
+    res.status(204).json({message: 'Deleted Successfully'})
+   
   } catch (error) {
     console.error('Error deleting task:', error);
     return res.status(500).json({ message: 'Server error' });
   }
 };
-export const editTask = async (req: Request, res: Response) =>  {
-  const {taskId} = req.params;
-  const {task} = req.body;
+export const editTaskAndSubTasks = async (req: Request, res: Response) =>  {
+  const {boardId, taskId} = req.params;
+  const {task, deletedSubTaskIds} = req.body;
+  const {subTasks} = task
+  const id = Number(taskId);
+      if (isNaN(id)) {
+  return res.status(400).json({ error: "Invalid ID" });
+} 
+
   try {
-    const updatedTask = await Task.findByIdAndUpdate(taskId, task, {
-      new: true,
-      runValidators: true
-    })
-    if (!updatedTask) {
-      return res.status(404).json({ message: 'Task not found' });
+     const [column] = await db.select().from(columns)
+      .where(and(eq(columns.name, task.status), eq(columns.board_id, boardId)));
+
+    if (!column) {
+      return res.status(400).json({ error: "Invalid status or board ID." });
+    }
+    const updatedTask = await db.update(tasks)
+      .set({ title: task.tite, description: task.description, status: column.name, column_id: column.id })
+      .where(eq(tasks.id, taskId));
+    if(deletedSubTaskIds.length > 0){
+      await db.delete(subTasksTable).where(inArray(subTasksTable.id, deletedSubTaskIds))
     }
     
-    const sourceCol = await Column.findOne({tasks: taskId})
-    console.log({sourceCol});
+       for (const st of subTasks) {
+          if (st.id) {
+
+            await db.update(subTasksTable)
+              .set({ title: st.title })
+              .where(eq(subTasksTable.id, st.id));
+          } else {
+            await db.insert(subTasksTable)
+              .values({ title: st.title, task_id: id });
+          }
+        }
     
-    sourceCol.tasks.pull(taskId);
-    sourceCol.save()
-    const targetColumn  = await Column.findOne({name: task.status});
-    targetColumn.tasks.push(taskId)
-    targetColumn.save()
     
-    // Respond with the updated task
-    res.json(updatedTask);
+        res.status(200).json({ message: "Tasks updated." });
+
   }  catch (error) {
     // Handle errors (e.g., invalid ID format, validation errors)
     res.status(400).json({ message: error.message });
   }
 
 }
+
+export const update

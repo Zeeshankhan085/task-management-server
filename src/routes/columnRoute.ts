@@ -3,6 +3,6 @@ import { createColumn } from '../controllers/columnController';
 
 const router = Router({ mergeParams: true });
 
-router.post('/columns', createColumn);
+router.post('/', createColumn);
 
 export default router;
