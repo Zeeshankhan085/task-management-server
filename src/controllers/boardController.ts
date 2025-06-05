@@ -9,6 +9,7 @@ export const getAllBoards = async (req: Request, res: Response) => {
 
   try {
   const boards = await db.query.boards.findMany({
+  orderBy: (boards, { asc }) => [asc(boards.id)],
   with: {
     columns: {
       with: {
