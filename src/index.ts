@@ -27,8 +27,8 @@ app.use('/api/boards/:boardId/columns/:columnId/tasks', taskRoutes)
 app.use('/api/boards/:boardId/columns/:columnId/tasks/:taskId/subtasks', subTaskRoutes)
 
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 3000;
 
-app.listen(PORT, () => {
+app.listen(+PORT, "0.0.0.0", () => {
   console.log(`Server is running on port ${PORT}`);
 });
