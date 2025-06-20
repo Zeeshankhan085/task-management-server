@@ -20,7 +20,7 @@ export const tasks = pgTable("tasks", {
 
 export const columns = pgTable("columns", {
     id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
-    name: varchar("name", {length: 120}).notNull().unique(),
+    name: varchar("name", {length: 120}).notNull(),
     board_id: integer("board_id").references(() => boards.id, {onDelete: "cascade"}).notNull()
 })
 
