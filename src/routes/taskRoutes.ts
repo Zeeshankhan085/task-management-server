@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { createTask, deleteTask, moveTask, editTaskAndSubTasks } from '../controllers/taskController';
+import { createTask, deleteTask, moveTask, editTaskAndSubTasks, editTask } from '../controllers/taskController';
 
 const router = Router({ mergeParams: true });
 
@@ -8,7 +8,7 @@ router.post('/', createTask);
 
 router.put('/:taskId/move', moveTask);
 router.put('/:taskId/', editTaskAndSubTasks);
-
+router.patch('/:taskId/', editTask)
 
 router.delete('/:taskId', deleteTask)
 

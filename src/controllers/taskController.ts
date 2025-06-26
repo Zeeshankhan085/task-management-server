@@ -118,4 +118,16 @@ export const editTaskAndSubTasks = async (req: Request, res: Response) => {
 
 }
 
-export const update
+// export const update
+export const editTask = async (req: Request, res: Response) => {
+  const { taskId } = req.params;
+  const task = req.body;
+  try {
+    const updatedTask = await db.update(tasks).set(task).where(eq(tasks.id, taskId)).returning();
+    res.status(200).send(updatedTask)
+  } catch (err) {
+    console.log(err);
+
+    res.status(500).send(err)
+  }
+}
